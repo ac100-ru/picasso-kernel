@@ -218,6 +218,8 @@ static int nvec_power_bat_notifier(struct notifier_block *nb,
 		return NOTIFY_STOP;
 	}
 
+	// FIXME Investigate when this call is really needed
+	power_supply_changed(&nvec_bat_psy);
 	return NOTIFY_STOP;
 }
 
