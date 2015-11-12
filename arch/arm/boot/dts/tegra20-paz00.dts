@@ -605,11 +605,17 @@
 	};
 
 	usb@c5000000 {
+		compatible = "nvidia,tegra20-udc";
 		status = "okay";
 	};
 
 	usb-phy@c5000000 {
 		status = "okay";
+		dr_mode = "peripheral";
+		nvidia,xcvr-setup = <8>;
+		nvidia,xcvr-setup-use-fuses;
+		nvidia,xcvr-lsfslew = <2>;
+		nvidia,xcvr-lsrslew = <2>;
 	};
 
 	usb@c5004000 {
