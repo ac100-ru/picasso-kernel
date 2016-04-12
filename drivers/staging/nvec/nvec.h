@@ -80,6 +80,7 @@ enum nvec_msg_type {
 	NVEC_OEM0 = 0x0d,
 	NVEC_KB_EVT = 0x80,
 	NVEC_PS2_EVT,
+	NVEC_SYS_EVT = 0x85,
 };
 
 /**

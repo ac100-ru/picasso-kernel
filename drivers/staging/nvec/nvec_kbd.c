@@ -63,9 +63,12 @@ static int nvec_keys_notifier(struct notifier_block *nb,
 	if (event_type == NVEC_KB_EVT) {
 		int _size = (msg[0] & (3 << 5)) >> 5;
 
-/* power on/off button */
-		if (_size == NVEC_VAR_SIZE)
+		/* power on/off button */
+		if (_size == NVEC_VAR_SIZE) {
+			print_hex_dump(KERN_WARNING, "kbd varsize msg: ",
+					DUMP_PREFIX_NONE, 16, 1, msg, msg[1] + 2, true);
 			return NOTIFY_STOP;
+		}
 
 		if (_size == NVEC_3BYTES)
 			msg++;
