@@ -508,7 +508,7 @@ int tegra_dc_get_stride(struct tegra_dc *dc, unsigned win)
 {
 	u32 stride;
 
-// 	if (!dc->enabled)
+	if (!dc->enabled)
 		return 0;
 	BUG_ON(win > DC_N_WINDOWS);
 	mutex_lock(&dc->lock);
@@ -2117,6 +2117,9 @@ static int tegra_dc_probe(struct nvhost_device *ndev,
 	}
 #endif
 
+	reset_control_assert(dc->ndev->rst);
+	usleep_range(1000, 2000);
+
 	/* interrupt handler must be registered before tegra_fb_register() */
 	if (devm_request_irq(&ndev->dev, irq, tegra_dc_irq, 0,
 			dev_name(&ndev->dev), dc)) {
@@ -2219,7 +2222,6 @@ static int tegra_dc_suspend(struct nvhost_device *ndev, pm_message_t state)
 	struct tegra_dc *dc = nvhost_get_drvdata(ndev);
 
 	trace_printk("%s:suspend\n", dc->ndev->name);
-	dev_info(&ndev->dev, "suspend\n");
 
 	flush_delayed_work(&dc->disable_work);
 
@@ -2255,7 +2257,6 @@ static int tegra_dc_resume(struct nvhost_device *ndev)
 	struct tegra_dc *dc = nvhost_get_drvdata(ndev);
 
 	trace_printk("%s:resume\n", dc->ndev->name);
-	dev_info(&ndev->dev, "resume\n");
 
 	mutex_lock(&dc->lock);
 
@@ -2305,10 +2306,6 @@ extern int suspend_get(char *buffer, struct kernel_param *kp)
 {
 	return 0;
 }
-
-int suspend;
-
-module_param_call(suspend, suspend_set, suspend_get, &suspend, 0644);
 
 static struct of_device_id tegra_dc_of_match[] = {
 	{ .compatible = "nvidia,tegra20-dc", },
