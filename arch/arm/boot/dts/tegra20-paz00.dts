@@ -489,17 +489,17 @@
 					regulator-always-on;
 				};
 
-				sm0 {
+				core_vdd_reg: sm0 {
 					regulator-name = "+1.2vs_sm0,vdd_core";
-					regulator-min-microvolt = <1200000>;
-					regulator-max-microvolt = <1200000>;
+					regulator-min-microvolt = <1000000>;
+					regulator-max-microvolt = <1300000>;
 					regulator-always-on;
 				};
 
-				sm1 {
+				cpu_vdd_reg: sm1 {
 					regulator-name = "+1.0vs_sm1,vdd_cpu";
-					regulator-min-microvolt = <1000000>;
-					regulator-max-microvolt = <1000000>;
+					regulator-min-microvolt = <750000>;
+					regulator-max-microvolt = <1125000>;
 					regulator-always-on;
 				};
 
@@ -519,10 +519,10 @@
 					regulator-always-on;
 				};
 
-				ldo2 {
+				rtc_vdd_reg: ldo2 {
 					regulator-name = "+1.2vs_ldo2,vdd_rtc";
-					regulator-min-microvolt = <1200000>;
-					regulator-max-microvolt = <1200000>;
+					regulator-min-microvolt = <950000>;
+					regulator-max-microvolt = <1300000>;
 				};
 
 				ldo3 {
@@ -776,6 +776,33 @@
 		         <&tegra_car TEGRA20_CLK_PLL_A_OUT0>,
 		         <&tegra_car TEGRA20_CLK_CDEV1>;
 		clock-names = "pll_a", "pll_a_out0", "mclk";
+	};
+
+	dvfs {
+		compatible = "tegra20-dvfs";
+		core-supply = <&core_vdd_reg>;
+		rtc-supply = <&rtc_vdd_reg>;
+		cpu-supply = <&cpu_vdd_reg>;
+
+		clocks = <&tegra_car TEGRA20_CLK_DISP1>,
+			 <&tegra_car TEGRA20_CLK_DISP2>,
+			 <&tegra_car TEGRA20_CLK_HDMI>,
+			 <&tegra_car TEGRA20_CLK_EPP>,
+			 <&tegra_car TEGRA20_CLK_GR2D>,
+			 <&tegra_car TEGRA20_CLK_GR3D>,
+			 <&tegra_car TEGRA20_CLK_MPE>,
+			 <&tegra_car TEGRA20_CLK_HOST1X>,
+			 <&tegra_car TEGRA20_CLK_VI>,
+			 <&tegra_car TEGRA20_CLK_CSI>,
+			 <&tegra_car TEGRA20_CLK_VDE>,
+			 <&tegra_car TEGRA20_CLK_MIPI>,
+			 <&tegra_car TEGRA20_CLK_USBD>,
+			 <&tegra_car TEGRA20_CLK_USB2>,
+			 <&tegra_car TEGRA20_CLK_USB3>,
+			 <&tegra_car TEGRA20_CLK_EMC>;
+		clock-names = "disp1", "disp2", "hdmi", "epp", "2d", "3d",
+				"mpe", "host1x", "vi", "csi", "vde", "mipi",
+				"usbd", "usb2", "usb3", "emc";
 	};
 
 	memory-controller@7000f400 {
