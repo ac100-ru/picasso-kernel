@@ -103,6 +103,10 @@ static const struct mfd_cell nvec_devices[] = {
 		.name = "nvec-paz00",
 		.id = 1,
 	},
+	{
+		.name = "nvec-event",
+		.id = 1,
+	},
 };
 
 /**
