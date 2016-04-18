@@ -63,10 +63,14 @@ static int nvec_keys_notifier(struct notifier_block *nb,
 	if (event_type == NVEC_KB_EVT) {
 		int _size = (msg[0] & (3 << 5)) >> 5;
 
-		/* power on/off button */
+		/* long power on/off button */
 		if (_size == NVEC_VAR_SIZE) {
 			print_hex_dump(KERN_WARNING, "kbd varsize msg: ",
 					DUMP_PREFIX_NONE, 16, 1, msg, msg[1] + 2, true);
+			input_report_key(keys_dev.input, KEY_POWER, 1);
+			input_sync(keys_dev.input);
+			input_report_key(keys_dev.input, KEY_POWER, 0);
+			input_sync(keys_dev.input);
 			return NOTIFY_STOP;
 		}
 
@@ -76,6 +80,8 @@ static int nvec_keys_notifier(struct notifier_block *nb,
 		code = msg[1] & 0x7f;
 		state = msg[1] & 0x80;
 
+		if (code_tabs[_size][code] == KEY_POWER)
+			printk("%s %s (%d)", KERN_WARNING, "kbd KEY_POWER", _size);
 		if (code_tabs[_size][code] == KEY_CAPSLOCK && state)
 			nvec_kbd_toggle_led();
 

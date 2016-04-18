@@ -27,15 +27,22 @@ static int nvec_event_notifier(struct notifier_block *nb,
 	int data_size;
 
 	if (event_type != NVEC_SYS_EVT)
+	{
+		print_hex_dump(KERN_WARNING, "evt - non sys evt: ",
+			DUMP_PREFIX_NONE, 16, 1, msg, 2, true);
 		return NOTIFY_DONE;
-
+	}
 	transfer_type = (msg[0] & (3 << 5)) >> 5;
 
 	if (transfer_type != NVEC_VAR_SIZE)
+	{
+		print_hex_dump(KERN_WARNING, "evt - non var size evt: ",
+			DUMP_PREFIX_NONE, 16, 1, msg, 2, true);
 		return NOTIFY_DONE;
+	}
 
 	data_size = msg[1];
-	print_hex_dump(KERN_WARNING, "sys varsize msg: ",
+	print_hex_dump(KERN_WARNING, "evt - sys varsize msg: ",
 			DUMP_PREFIX_NONE, 16, 1, msg, data_size + 2, true);
 
 	if (data_size != 4)
@@ -91,23 +98,29 @@ static int nvec_event_probe(struct platform_device *pdev)
 {
 	struct nvec_chip *nvec = dev_get_drvdata(pdev->dev.parent);
 	int err;
+	/*
+	char	lid_evt_en[] = { NVEC_SYS, SET_LEDS, 0 },
+		pwr_btn_evt_en[] = { NVEC_SYS, ENABLE_KBD },
+		cnfg_wake[] = { NVEC_SYS, CNFG_WAKE, true, true },
+						true };
+	*/
 
 	event_handler.nvec = nvec;
-	event_handler.sleep = input_allocate_device();
-	event_handler.sleep->name = "NVEC sleep button";
-	event_handler.sleep->phys = "NVEC";
+	event_handler.sleep = devm_input_allocate_device(&pdev->dev);
+	event_handler.sleep->name = "nvec sleep button";
+	event_handler.sleep->phys = "nvec";
 	event_handler.sleep->evbit[0] = BIT_MASK(EV_KEY);
 	set_bit(KEY_SLEEP, event_handler.sleep->keybit);
 
-	event_handler.power = input_allocate_device();
-	event_handler.power->name = "NVEC power button";
-	event_handler.power->phys = "NVEC";
+	event_handler.power = devm_input_allocate_device(&pdev->dev);
+	event_handler.power->name = "nvec power button";
+	event_handler.power->phys = "nvec";
 	event_handler.power->evbit[0] = BIT_MASK(EV_KEY);
 	set_bit(KEY_POWER, event_handler.power->keybit);
 
-	event_handler.lid = input_allocate_device();
-	event_handler.lid->name = "NVEC lid switch button";
-	event_handler.lid->phys = "NVEC";
+	event_handler.lid = devm_input_allocate_device(&pdev->dev);
+	event_handler.lid->name = "nvec lid switch button";
+	event_handler.lid->phys = "nvec";
 	event_handler.lid->evbit[0] = BIT_MASK(EV_SW);
 	set_bit(SW_LID, event_handler.lid->swbit);
 
