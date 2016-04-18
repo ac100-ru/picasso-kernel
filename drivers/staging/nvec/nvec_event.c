@@ -107,19 +107,19 @@ static int nvec_event_probe(struct platform_device *pdev)
 
 	event_handler.nvec = nvec;
 	event_handler.sleep = devm_input_allocate_device(&pdev->dev);
-	event_handler.sleep->name = "nvec sleep button";
+	event_handler.sleep->name = "NVEC sleep button";
 	event_handler.sleep->phys = "nvec";
 	event_handler.sleep->evbit[0] = BIT_MASK(EV_KEY);
 	set_bit(KEY_SLEEP, event_handler.sleep->keybit);
 
 	event_handler.power = devm_input_allocate_device(&pdev->dev);
-	event_handler.power->name = "nvec power button";
+	event_handler.power->name = "NVEC power button";
 	event_handler.power->phys = "nvec";
 	event_handler.power->evbit[0] = BIT_MASK(EV_KEY);
 	set_bit(KEY_POWER, event_handler.power->keybit);
 
 	event_handler.lid = devm_input_allocate_device(&pdev->dev);
-	event_handler.lid->name = "nvec lid switch button";
+	event_handler.lid->name = "NVEC lid switch button";
 	event_handler.lid->phys = "nvec";
 	event_handler.lid->evbit[0] = BIT_MASK(EV_SW);
 	set_bit(SW_LID, event_handler.lid->swbit);
@@ -148,6 +148,7 @@ static int nvec_event_probe(struct platform_device *pdev)
 	return 0;
 
 fail:
+	printk(KERN_ERR "failed to register input devices");
 	input_free_device(event_handler.sleep);
 	input_free_device(event_handler.power);
 	input_free_device(event_handler.lid);

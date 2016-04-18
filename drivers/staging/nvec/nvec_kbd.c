@@ -34,6 +34,7 @@ static unsigned char keycodes[ARRAY_SIZE(code_tab_102us)
 
 struct nvec_keys {
 	struct input_dev *input;
+	struct input_dev *power_key;
 	struct notifier_block notifier;
 	struct nvec_chip *nvec;
 	bool caps_lock;
@@ -67,10 +68,10 @@ static int nvec_keys_notifier(struct notifier_block *nb,
 		if (_size == NVEC_VAR_SIZE) {
 			print_hex_dump(KERN_WARNING, "kbd varsize msg: ",
 					DUMP_PREFIX_NONE, 16, 1, msg, msg[1] + 2, true);
-			input_report_key(keys_dev.input, KEY_POWER, 1);
-			input_sync(keys_dev.input);
-			input_report_key(keys_dev.input, KEY_POWER, 0);
-			input_sync(keys_dev.input);
+			input_report_key(keys_dev.power_key, KEY_POWER, 1);
+			input_sync(keys_dev.power_key);
+			input_report_key(keys_dev.power_key, KEY_POWER, 0);
+			input_sync(keys_dev.power_key);
 			return NOTIFY_STOP;
 		}
 
@@ -144,6 +145,11 @@ static int nvec_kbd_probe(struct platform_device *pdev)
 	idev->keycode = keycodes;
 	idev->keycodesize = sizeof(unsigned char);
 	idev->keycodemax = ARRAY_SIZE(keycodes);
+
+	keys_dev.power_key = devm_input_allocate_device(&pdev->dev);
+	keys_dev.power_key->name = "nvec keyboard";
+	keys_dev.power_key->phys = "nvec";
+	keys_dev.power_key->evbit[0] = BIT_MASK(EV_KEY);
 
 	for (i = 0; i < ARRAY_SIZE(keycodes); ++i)
 		set_bit(keycodes[i], idev->keybit);
