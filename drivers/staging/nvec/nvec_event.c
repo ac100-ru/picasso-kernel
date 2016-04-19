@@ -91,16 +91,20 @@ static int nvec_event_resume(struct platform_device *pdev)
 #endif
 
 
+static void nvec_event_mask(char *ev, u32 mask)
+{
+	ev[3] = mask >> 16 & 0xff;
+	ev[4] = mask >> 24 & 0xff;
+	ev[5] = mask >> 0  & 0xff;
+	ev[6] = mask >> 8  & 0xff;
+}
+
+
 static int nvec_event_probe(struct platform_device *pdev)
 {
 	struct nvec_chip *nvec = dev_get_drvdata(pdev->dev.parent);
 	int err;
-	/*
-	char	lid_evt_en[] = { NVEC_SYS, SET_LEDS, 0 },
-		pwr_btn_evt_en[] = { NVEC_SYS, ENABLE_KBD },
-		cnfg_wake[] = { NVEC_SYS, CNFG_WAKE, true, true },
-						true };
-	*/
+	char	enable_event[7] = { 1 /*NVEC_SYS*/, 0x01 /*CNF_EVENT_REPORTING*/, true };
 
 	event_handler.nvec = nvec;
 	event_handler.sleep = devm_input_allocate_device(&pdev->dev);
@@ -142,6 +146,22 @@ static int nvec_event_probe(struct platform_device *pdev)
 	/* enable power button event */
 	nvec_write_async(nvec, "\x01\x01\x01\x00\x00\x80\x00", 7);
 
+#define LID_SWITCH BIT(1)
+#define PWR_BUTTON2 BIT(7)
+#define PWR_BUTTON BIT(15)
+
+	nvec_event_mask(enable_event, LID_SWITCH);
+	nvec_write_async(nvec, enable_event, 7);
+
+	nvec_event_mask(enable_event, PWR_BUTTON2);
+	nvec_write_async(nvec, enable_event, 7);
+
+	nvec_event_mask(enable_event, PWR_BUTTON);
+	nvec_write_async(nvec, enable_event, 7);
+
+	/* Enable ALL events */
+	nvec_event_mask(enable_event, 0xffffffff);
+	nvec_write_async(nvec, enable_event, 7);
 	return 0;
 
 fail:
