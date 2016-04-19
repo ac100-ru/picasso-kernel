@@ -147,7 +147,7 @@ static int nvec_kbd_probe(struct platform_device *pdev)
 	idev->keycodemax = ARRAY_SIZE(keycodes);
 
 	keys_dev.power_key = devm_input_allocate_device(&pdev->dev);
-	keys_dev.power_key->name = "nvec keyboard";
+	keys_dev.power_key->name = "power key";
 	keys_dev.power_key->phys = "nvec";
 	keys_dev.power_key->evbit[0] = BIT_MASK(EV_KEY);
 
@@ -158,6 +158,10 @@ static int nvec_kbd_probe(struct platform_device *pdev)
 	err = input_register_device(idev);
 	if (err)
 		return err;
+
+	err = input_register_device(keys_dev.power_key);
+	if (err)
+		printk(KERN_WARNING "Failed to register 'power key'");
 
 	keys_dev.input = idev;
 	keys_dev.notifier.notifier_call = nvec_keys_notifier;
