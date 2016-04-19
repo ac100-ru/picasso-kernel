@@ -27,11 +27,8 @@ static int nvec_event_notifier(struct notifier_block *nb,
 	int data_size;
 
 	if (event_type != NVEC_SYS_EVT)
-	{
-		print_hex_dump(KERN_WARNING, "evt - non sys evt: ",
-			DUMP_PREFIX_NONE, 16, 1, msg, 2, true);
 		return NOTIFY_DONE;
-	}
+
 	transfer_type = (msg[0] & (3 << 5)) >> 5;
 
 	if (transfer_type != NVEC_VAR_SIZE)
