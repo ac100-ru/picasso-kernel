@@ -150,6 +150,7 @@ static int nvec_kbd_probe(struct platform_device *pdev)
 	keys_dev.power_key->name = "power key";
 	keys_dev.power_key->phys = "nvec";
 	keys_dev.power_key->evbit[0] = BIT_MASK(EV_KEY);
+	set_bit(KEY_POWER, keys_dev.power_key->keybit);
 
 	for (i = 0; i < ARRAY_SIZE(keycodes); ++i)
 		set_bit(keycodes[i], idev->keybit);
