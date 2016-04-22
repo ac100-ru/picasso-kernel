@@ -50,9 +50,9 @@ static int nvec_event_notifier(struct notifier_block *nb,
 	{
 	case 0x80:		/* short power button press */
 		input_report_key(event_handler.sleep, KEY_SLEEP, 1);
-		input_sync(event_handler.power);
+		input_sync(event_handler.sleep);
 		input_report_key(event_handler.sleep, KEY_SLEEP, 0);
-		input_sync(event_handler.power);
+		input_sync(event_handler.sleep);
 		break;
 	case 0x02:		/* lid close */
 		input_report_switch(event_handler.lid, SW_LID, 1);
