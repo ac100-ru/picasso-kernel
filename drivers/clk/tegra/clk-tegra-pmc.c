@@ -135,7 +135,7 @@ void __init tegra_pmc_clk_init(void __iomem *pmc_base,
 	*dt_clk = clk;
 }
 
-unsigned long long tegra_pmc_get_pclk_rate(void)
+unsigned long tegra_pmc_get_pclk_rate(void)
 {
 	return __clk_get_rate(pclk);
 }
