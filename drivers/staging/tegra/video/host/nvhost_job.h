@@ -21,6 +21,7 @@
 #ifndef __NVHOST_JOB_H
 #define __NVHOST_JOB_H
 
+#include <linux/nvmap.h>
 #include <linux/nvhost_ioctl.h>
 
 struct nvhost_channel;
@@ -59,6 +60,8 @@ struct nvhost_job {
 	/* Gathers and their memory */
 	struct nvhost_job_gather *gathers;
 	int num_gathers;
+	struct mem_handle *gather_mem;
+	int gather_mem_size;
 
 	/* Wait checks to be processed at submit time */
 	struct nvhost_waitchk *waitchk;
@@ -66,9 +69,8 @@ struct nvhost_job {
 	u32 waitchk_mask;
 
 	/* Array of handles to be pinned & unpinned */
-	struct nvhost_reloc *relocarray;
-	struct nvhost_reloc_shift *relocshiftarray;
-	int num_relocs;
+	struct nvmap_pinarray_elem *pinarray;
+	int num_pins;
 	struct mem_handle **unpins;
 	int num_unpins;
 
@@ -105,6 +107,17 @@ struct nvhost_job *nvhost_job_alloc(struct nvhost_channel *ch,
 		int priority, int clientid);
 
 /*
+ * Allocate memory for a job. Just enough memory will be allocated to
+ * accomodate the submit announced in submit header. Gather memory from
+ * oldjob will be reused, and nvhost_job_put() will be called to it.
+ */
+struct nvhost_job *nvhost_job_realloc(struct nvhost_job *oldjob,
+		struct nvhost_hwctx *hwctx,
+		struct nvhost_submit_hdr_ext *hdr,
+		struct mem_mgr *memmgr,
+		int priority, int clientid);
+
+/*
  * Add a gather to a job.
  */
 void nvhost_job_add_gather(struct nvhost_job *job,
@@ -133,7 +146,7 @@ void nvhost_job_put(struct nvhost_job *job);
  * Handles also patching out host waits that would wait for an expired sync
  * point value.
  */
-int nvhost_job_pin(struct nvhost_job *job, struct nvhost_syncpt *sp);
+int nvhost_job_pin(struct nvhost_job *job);
 
 /*
  * Unpin memory related to job.
